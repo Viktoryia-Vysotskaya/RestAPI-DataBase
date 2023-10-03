@@ -11,7 +11,12 @@ app.use(cors());
 
 // Import routes
 const testimonialRoutes = require('./routes/testimonials.routes');
+const concertsRoutes = require('./routes/concerts.routes');
+
+// Add testimonial routes to server
 app.use('/api', testimonialRoutes);
+// Add concerts routes to server
+app.use('/api', concertsRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ message: 'Not found...' });
