@@ -5,9 +5,9 @@ const db = require('./db');
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
 
 // Import routes
 const testimonialRoutes = require('./routes/testimonials.routes');

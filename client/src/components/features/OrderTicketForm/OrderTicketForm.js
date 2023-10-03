@@ -1,7 +1,7 @@
 import { Button, Form, FormGroup, Label, Input, Row, Col, Alert, Progress } from 'reactstrap';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addSeatRequest, getRequests } from '../../../redux/seatsRedux';
+import { addSeatRequest, getRequests, loadSeatsRequest } from '../../../redux/seatsRedux';
 
 import './OrderTicketForm.scss';
 import SeatChooser from './../SeatChooser/SeatChooser';
@@ -37,28 +37,37 @@ const OrderTicketForm = () => {
   const submitForm = async (e) => {
     e.preventDefault();
 
-    if(order.client && order.email && order.day && order.seat) {
-      dispatch(addSeatRequest(order));
-      setOrder({
-        client: '',
-        email: '',
-        day: 1,
-        seat: '',
-      });
-      setIsError(false);
+    if (order.client && order.email && order.day && order.seat) {
+      try {
+        // Call addSeatRequest and wait for it to complete
+        await dispatch(addSeatRequest(order));
+        // After addSeatRequest is done, call loadSeatsRequest
+        await dispatch(loadSeatsRequest());
+        setOrder({
+          client: '',
+          email: '',
+          day: 1,
+          seat: '',
+        });
+        setIsError(false);
+      } catch (error) {
+        // Handle any errors that might occur during the process
+        console.error("Error submitting form:", error);
+        setIsError(true);
+      }
     } else {
       setIsError(true);
     }
-  }
+  };
 
   return (
     <Form className="order-ticket-form" onSubmit={submitForm}>
       <Row>
         <Col xs="12" md="6">
-          { (isError) && <Alert color="warning">There are some errors in you form. Have you fill all the fields? Maybe you forgot to choose your seat?</Alert> }
-          { (requests['ADD_SEAT'] && requests['ADD_SEAT'].error && !isError) && <Alert color="danger">{requests['ADD_SEAT'].error}</Alert> }
-          { (requests['ADD_SEAT'] && requests['ADD_SEAT'].success && !isError) && <Alert color="success">You've booked your ticket! Check you email in order to make a payment.</Alert> }
-          { (requests['ADD_SEAT'] && requests['ADD_SEAT'].pending) && <Progress animated className="mb-5" color="primary" value={75} /> }
+          {(isError) && <Alert color="warning">There are some errors in you form. Have you fill all the fields? Maybe you forgot to choose your seat?</Alert>}
+          {(requests['ADD_SEAT'] && requests['ADD_SEAT'].error && !isError) && <Alert color="danger">{requests['ADD_SEAT'].error}</Alert>}
+          {(requests['ADD_SEAT'] && requests['ADD_SEAT'].success && !isError) && <Alert color="success">You've booked your ticket! Check you email in order to make a payment.</Alert>}
+          {(requests['ADD_SEAT'] && requests['ADD_SEAT'].pending) && <Progress animated className="mb-5" color="primary" value={75} />}
           <FormGroup>
             <Label for="clientEmail">Name</Label>
             <Input type="text" value={order.client} name="client" onChange={updateTextField} id="clientName" placeholder="John Doe" />
@@ -84,9 +93,9 @@ const OrderTicketForm = () => {
           <Button color="primary" className="mt-3">Submit</Button>
         </Col>
         <Col xs="12" md="6">
-          <SeatChooser 
+          <SeatChooser
             chosenDay={order.day}
-            chosenSeat={order.seat} 
+            chosenSeat={order.seat}
             updateSeat={updateSeat} />
         </Col>
       </Row>
