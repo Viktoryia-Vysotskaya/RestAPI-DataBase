@@ -6,12 +6,21 @@
   "author": "Viktoryia Vysotskaya <radevich.vika2014@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/socket.io-client": "^3.0.0",
     "cors": "^2.8.5",
     "express": "4.17.1",
+    "jest": "^29.7.0",
     "nodemon": "^3.0.1",
-    "uuid": "^9.0.1"
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2",
+    "uuid": "^9.0.1",
+    "ws": "^8.14.2"
   },
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/socket.io-client": "^3.0.0"
   }
 }
