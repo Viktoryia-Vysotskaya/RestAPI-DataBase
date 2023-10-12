@@ -1,22 +1,17 @@
-import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import { configureStore } from '@reduxjs/toolkit';
 import thunk from 'redux-thunk';
+import concertsReducer from './concertsRedux';
+import seatsReducer from './seatsRedux';
 
-// import reducers
-import concerts from './concertsRedux';
-import seats from './seatsRedux';
+const rootReducer = {
+  concerts: concertsReducer,
+  seats: seatsReducer,
+};
 
-// combine reducers
-const rootReducer = combineReducers({
-  concerts,
-  seats,
+const store = configureStore({
+  reducer: rootReducer,
+  middleware: [thunk],
+  devTools: process.env.NODE_ENV !== 'production', 
 });
-
-const store = createStore(
-  rootReducer,
-  compose(
-		applyMiddleware(thunk),
-		window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-	)
-);
 
 export default store;
