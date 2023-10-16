@@ -26,19 +26,18 @@ router.route('/seats/:id').get((req, res) => {
 
 router.route('/seats').post((req, res) => {
     const { day, seat, client, email } = req.body;
-
     if (!day || !seat || !client || !email) {
         return res.status(400).json({ error: 'One or more mandatory fields omitted.' });
     }
-
     const parsedDay = parseInt(day);
     const parsedSeat = parseInt(seat);
-
+    if (isNaN(parsedDay) || isNaN(parsedSeat)) {
+        return res.status(400).json({ error: 'Invalid day or seat value.' });
+    }
     const isTaken = db.seats.some(item => item.day === parsedDay && item.seat === parsedSeat);
     if (isTaken) {
         return res.status(409).json({ message: 'The slot is already taken...' });
     }
-
     const id = uuidv4();
     const newSeat = { id, day: parsedDay, seat: parsedSeat, client, email };
     db.seats.push(newSeat);
@@ -51,34 +50,18 @@ router.route('/seats').post((req, res) => {
 router.route('/seats/:id').put((req, res) => {
     const { id } = req.params;
     const { day, seat, client, email } = req.body;
-
     if (!day || !seat || !client || !email) {
         return res.status(400).json({ error: 'One or more mandatory fields omitted.' });
     }
-
     const modSeat = db.seats.find((item) => item.id === id);
-
     if (!modSeat) {
         return res.status(404).json({ message: 'Seat not found' });
     }
-
     modSeat.day = day;
     modSeat.seat = seat;
     modSeat.client = client;
     modSeat.email = email;
-
     res.json({ message: 'OK' });
-});
-
-router.route('/seats/:id').delete((req, res) => {
-    const seatId = req.params.id;
-    const seatIndex = db.seats.findIndex((seat) => seat.id === seatId);
-    if (seatIndex !== -1) {
-        db.seats.splice(seatIndex, 1);
-        res.json({ message: 'OK' });
-    } else {
-        res.status(404).json({ message: 'Seat not found' });
-    }
 });
 
 module.exports = router;

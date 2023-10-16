@@ -2,20 +2,20 @@ import { Button, Form, FormGroup, Label, Input, Row, Col, Alert, Progress } from
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addSeatRequest, getRequests } from '../../../redux/seatsRedux';
-
-import './OrderTicketForm.scss';
 import SeatChooser from './../SeatChooser/SeatChooser';
+import './OrderTicketForm.scss';
 
 const OrderTicketForm = () => {
+
   const dispatch = useDispatch();
   const requests = useSelector(getRequests);
-
   const [order, setOrder] = useState({
     client: '',
     email: '',
     day: 1,
     seat: ''
   });
+
   const [isError, setIsError] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
 
@@ -31,18 +31,11 @@ const OrderTicketForm = () => {
 
   const updateNumberField = ({ target }) => {
     const { value, name } = target;
-    const parsedValue = parseInt(value);
-
-    if (!Number.isNaN(parsedValue)) {
-      setOrder({ ...order, [name]: parsedValue });
-    } else {
-      setOrder({ ...order, [name]: '' }); // Reset the field if the value is not a valid number
-    }
-  };
+    setOrder({ ...order, [name]: parseInt(value) });
+  }
 
   const submitForm = async (e) => {
     e.preventDefault();
-
     if (order.client && order.email && order.day && order.seat) {
       dispatch(addSeatRequest(order));
       setOrder({
@@ -65,9 +58,9 @@ const OrderTicketForm = () => {
     <Form className="order-ticket-form" onSubmit={submitForm}>
       <Row>
         <Col xs="12" md="6">
-          {(isError) && <Alert color="warning">There are some errors in you form. Have you fill all the fields? Maybe you forgot to choose your seat?</Alert>}
+          {(isError) && <Alert color="warning">There are some errors in you form. <br />Have you fill all the fields? <br />Maybe you forgot to choose your seat?</Alert>}
           {(requests['ADD_SEAT'] && requests['ADD_SEAT'].error && !isError) && <Alert color="danger">{requests['ADD_SEAT'].error}</Alert>}
-          {(requests['ADD_SEAT'] && requests['ADD_SEAT'].success && !isError) && <Alert color="success">You've booked your ticket! Check you email in order to make a payment.</Alert>}
+          {(requests['ADD_SEAT'] && requests['ADD_SEAT'].success && !isError) && <Alert color="success">You've booked your ticket! <br />Check you email in order to make a payment.</Alert>}
           {(requests['ADD_SEAT'] && requests['ADD_SEAT'].pending) && <Progress animated className="mb-5" color="primary" value={75} />}
           <FormGroup>
             <Label for="clientEmail">Name</Label>
@@ -75,11 +68,11 @@ const OrderTicketForm = () => {
           </FormGroup>
           <FormGroup>
             <Label for="clientEmail">Email</Label>
-            <Input type="email" value={order.email} name="email" onChange={updateTextField} id="clientEmail" placeholder="johndoe@example.com" />
+            <Input type="email" value={order.email} name="email" onChange={updateTextField} id="clientEmail" placeholder="johndoe@example.com" autoComplete="email" />
           </FormGroup>
           <FormGroup>
-            <Label for="clientDay">Select which day of festivals are you interested in:</Label>
-            <Input type="select" value={order.day} name="day" onChange={updateNumberField} id="exampleSelect">
+            <Label for="daySelect">Select which day of festivals are you interested in:</Label>
+            <Input type="select" value={order.day} name="day" onChange={updateNumberField} id="daySelect">
               <option>1</option>
               <option>2</option>
               <option>3</option>
@@ -88,7 +81,7 @@ const OrderTicketForm = () => {
           </FormGroup>
           <FormGroup check>
             <Label check>
-              <Input required type="checkbox" checked={isAgreed} onChange={updateCheckbox} />
+              <Input id="agreementCheckbox" name="agreementCheckbox" required type="checkbox" checked={isAgreed} onChange={updateCheckbox} />
               I agree with <a href="/terms-and-conditions">Terms and conditions</a> and <a href="/privacy-policy">Privacy Policy</a>.
             </Label>
           </FormGroup>
