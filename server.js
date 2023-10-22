@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const db = require('./db');
 const path = require('path');
 const socket = require('socket.io');
+const mongoose = require('mongoose');
 
 // Import routes
 const testimonialRoutes = require('./routes/testimonials.routes');
@@ -46,3 +46,12 @@ app.use((req, res) => {
 io.on('connection', (socket) => {
     console.log('New client! Its id – ' + socket.id);
 });
+
+// Conncection the code with DB
+mongoose.connect('mongodb://localhost:27017/NewWaveDB', { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+
+db.once('open', () => {
+    console.log('Connected to the database');
+});
+db.on('error', err => console.log('Error ' + err));
