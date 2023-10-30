@@ -7,12 +7,17 @@
   "license": "MIT",
   "dependencies": {
     "@types/socket.io-client": "^3.0.0",
+    "chai": "^4.3.10",
+    "chai-http": "^4.4.0",
     "cors": "^2.8.5",
     "express": "4.17.1",
+    "helmet": "^7.0.0",
     "jest": "^29.7.0",
+    "mocha": "^10.2.0",
     "mongodb": "^6.2.0",
     "mongoose": "^7.6.3",
     "nodemon": "^3.0.1",
+    "onchange": "^7.1.0",
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2",
     "uuid": "^9.0.1",
@@ -20,7 +25,8 @@
   },
   "scripts": {
     "start": "nodemon server.js",
-    "test": "jest"
+    "test": "set NODE_ENV=test&& mocha \"./{,!(node_modules|client)/**/}*.test.js\"",
+    "test:watch": "onchange \"./**/*.js\" -i -k -- yarn test"
   },
   "devDependencies": {
     "@types/socket.io-client": "^3.0.0"
