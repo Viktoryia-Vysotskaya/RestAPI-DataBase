@@ -5,12 +5,14 @@ const path = require('path');
 const socket = require('socket.io');
 const mongoose = require('mongoose');
 
+require('dotenv').config();
+
 const NODE_ENV = process.env.NODE_ENV;
 let dbUri = '';
 
-if (NODE_ENV === 'production') dbUri = 'url to remote db';
-else if (NODE_ENV === 'test') dbUri = 'mongodb://0.0.0.0:27017/companyDBtest';
-else dbUri = 'mongodb+srv://viktoryiavysotskaya:wqigTaI9cOalJcIv@cluster0.bpmzv6u.mongodb.net/NewWaveDB?retryWrites=true&w=majority';
+if (NODE_ENV === 'production') dbUri = process.env.DB_URI_PROD;
+else if (NODE_ENV === 'test') dbUri = process.env.DB_URI_TEST;
+else dbUri = process.env.DB_URI_DEV;
 
 // Import routes
 const testimonialRoutes = require('./routes/testimonials.routes');
@@ -63,7 +65,7 @@ io.on('connection', (socket) => {
 });
 
 // Conncection the code with DB
-mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.DB_URI_DEV, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 
 db.once('open', () => {
