@@ -5,15 +5,6 @@ const path = require('path');
 const socket = require('socket.io');
 const mongoose = require('mongoose');
 
-require('dotenv').config();
-
-const NODE_ENV = process.env.NODE_ENV;
-let dbUri = '';
-
-if (NODE_ENV === 'production') dbUri = process.env.DB_URI_PROD;
-else if (NODE_ENV === 'test') dbUri = process.env.DB_URI_TEST;
-else dbUri = process.env.DB_URI_DEV;
-
 // Import routes
 const testimonialRoutes = require('./routes/testimonials.routes');
 const concertsRoutes = require('./routes/concerts.routes');
@@ -21,7 +12,23 @@ const seatsRoutes = require('./routes/seats.routes');
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'https://restapi-database.viktoryiavysots.repl.co'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow external access...';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    }
+}));
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(helmet());
@@ -33,13 +40,39 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something went wrong!');
 });
 
-const server = app.listen("8000", () => {
-    if (NODE_ENV !== "test") {
-        console.log("Server is running on port: 8000");
-    }
-});
+require('dotenv').config();
+
+const NODE_ENV = process.env.NODE_ENV;
+let dbUri = '';
+
+if (NODE_ENV === 'production') dbUri = process.env.DB_URI_PROD;
+else if (NODE_ENV === 'test') dbUri = process.env.DB_URI_TEST;
+else dbUri = process.env.DB_URI_DEV;
+
+// Conncection the code with DB
+try {
+    mongoose.connect(process.env.DB_URI_DEV, { useNewUrlParser: true, useUnifiedTopology: true });
+    const db = mongoose.connection;
+    db.once('open', () => {
+        if (NODE_ENV !== "test") console.log("Connected to the database");
+    });
+    db.on('error', err => console.log('Error ' + err));
+} catch (err) {
+    console.log('Couldn\'t connect to db...');
+}
+
+let server;
+
+try {
+    server = app.listen(process.env.PORT || 8000, () => {
+        console.log('Server is running on port: 8000');
+    });
+} catch (err) {
+    console.log('Couldn\'t start the server...');
+}
 
 const io = socket(server);
+
 app.use((req, res, next) => {
     req.io = io;
     next();
@@ -63,16 +96,5 @@ app.use((req, res) => {
 io.on('connection', (socket) => {
     console.log('New client! Its id – ' + socket.id);
 });
-
-// Conncection the code with DB
-mongoose.connect(process.env.DB_URI_DEV, { useNewUrlParser: true, useUnifiedTopology: true });
-const db = mongoose.connection;
-
-db.once('open', () => {
-    if (NODE_ENV !== "test") {
-        console.log("Connected to the database");
-    }
-});
-db.on('error', err => console.log('Error ' + err));
 
 module.exports = server;

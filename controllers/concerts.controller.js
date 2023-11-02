@@ -1,4 +1,5 @@
 const Concert = require('../models/concert.model');
+const sanitize = require('mongo-sanitize');
 
 exports.getAll = async (req, res) => {
     try {
@@ -35,7 +36,21 @@ exports.getById = async (req, res) => {
 
 exports.addNew = async (req, res) => {
     try {
-        const { performer, genre, price, day, image } = req.body;
+        // Sanitize inputs
+        const performer = sanitize(req.body.performer);
+        const genre = sanitize(req.body.genre);
+        const price = sanitize(req.body.price);
+        const day = sanitize(req.body.day);
+        const image = sanitize(req.body.image);
+        if (!performer || !genre || !image || day === undefined || price === undefined) {
+            return res.status(400).json({ message: 'Please, provide all required fields: performer, genre, price, day, image!' });
+        }
+        if (typeof price !== 'number') {
+            return res.status(400).json({ message: 'Price must be a number!' });
+        }
+        if (!Number.isInteger(day)) {
+            return res.status(400).json({ message: 'Day must be an integer!' });
+        }
         const newConcert = new Concert({ performer: performer, genre: genre, price: price, day: day, image: image });
         await newConcert.save();
         res.json({ message: 'OK' });

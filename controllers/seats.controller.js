@@ -1,4 +1,5 @@
 const Seat = require('../models/seat.model');
+const sanitize = require('mongo-sanitize');
 
 exports.getAll = async (req, res) => {
     try {
@@ -35,9 +36,22 @@ exports.getById = async (req, res) => {
 
 exports.addNew = async (req, res) => {
     try {
-        const { day, seat, client, email } = req.body;
+        // Sanitize inputs
+        const day = sanitize(req.body.day);
+        const seat = sanitize(req.body.seat);
+        const client = sanitize(req.body.client);
+        const email = sanitize(req.body.email);
+        // Regular Expressions for name and email validation
+        const clientRegex = /^[a-zA-Z '-]+$/;
+        const emailRegex = /^\S+@\S+\.\S+$/;
         if (!day || !seat || !client || !email) {
             return res.status(400).json({ error: 'One or more mandatory fields omitted.' });
+        }
+        if (!clientRegex.test(client)) {
+            return res.status(400).json({ error: 'Invalid characters in client name.' });
+        }
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Invalid email format.' });
         }
         const parsedDay = parseInt(day);
         const parsedSeat = parseInt(seat);
