@@ -34,16 +34,15 @@ else if (NODE_ENV === 'test') dbUri = process.env.DB_URI_TEST;
 else dbUri = process.env.DB_URI_DEV;
 
 // Conncection the code with DB
-try {
-    mongoose.connect(process.env.DB_URI_DEV, { useNewUrlParser: true, useUnifiedTopology: true });
-    const db = mongoose.connection;
-    db.once('open', () => {
-        if (NODE_ENV !== "test") console.log("Connected to the database");
-    });
-    db.on('error', err => console.log('Error ' + err));
-} catch (err) {
-    console.log('Couldn\'t connect to db...');
-}
+mongoose.connect(process.env.DB_URI_DEV, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+
+db.once('open', () => {
+    if (NODE_ENV !== "test") {
+        console.log("Connected to the database");
+    }
+});
+db.on('error', err => console.log('Error ' + err));
 
 let server;
 
