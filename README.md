@@ -3,7 +3,7 @@
 ➱ API Server
 
 
-💻 Live demo: https://9e0209d7-639c-4342-a62f-1d7df271330f-00-3kkmxdiw9w50v.worf.replit.dev
+💻 Live demo: https://rest-api-data-base-viktoryiavysots.replit.app
 
 (!) Free hosting so might take a while to load for first time.
 
